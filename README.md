@@ -28,9 +28,12 @@ Our workflow follows an iterative pipeline:
 
 ## 📂 Repository Structure
 
+```text
 drug-design-diabetes-team29/
-
-│── notebooks/
-│ └── Avance1.#29.ipynb 
-│── README.md # Project documentation
-│── requirements.txt # Dependencies for notebooks
+├── notebooks/
+│   └── Avance1.#29.ipynb
+├── README.md           # Project documentation
+├── requirements.txt    # Dependencies for notebooks
+├── src/                # Scripts and utilities
+├── data/               # Datasets
+└── images/             # Figures and visualizations
