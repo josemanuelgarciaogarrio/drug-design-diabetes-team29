@@ -31,7 +31,7 @@ Our workflow follows an iterative pipeline:
 ```text
 drug-design-diabetes-team29/
 ├── notebooks/
-│   └── Avance1.#29.ipynb
+│   └── Avance1_Equipo29.ipynb
 ├── README.md           # Project documentation
 ├── requirements.txt    # Dependencies for notebooks
 ├── src/                # Scripts and utilities
