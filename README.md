@@ -29,6 +29,7 @@ Our workflow follows an iterative pipeline:
 ## 📂 Repository Structure
 
 drug-design-diabetes-team29/
+
 │── notebooks/
 │ └── Avance1.#29.ipynb 
 │── README.md # Project documentation
