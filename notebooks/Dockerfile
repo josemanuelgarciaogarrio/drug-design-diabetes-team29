@@ -75,6 +75,14 @@ RUN mkdir -p params && \
     rm alphafold_params_2022-12-06.tar && \
     touch params/done.txt
 
+##################################    
+# PYROSETTA - VERSIÓN DEFINITIVA:
+# PYROSETTA - SOLO PARA EXPLORAR:
+COPY PyRosetta4.Release.python310.linux.release-387.tar.bz2 /workspace/
+RUN cd /workspace && tar -xf PyRosetta4.Release.python310.linux.release-387.tar.bz2
+RUN cd /workspace/PyRosetta4.Release.python310.linux.release-387/setup && python3 setup.py install
+##################################
+
 # Variables de entorno
 ENV DGLBACKEND=pytorch
 ENV PYTHONPATH="/workspace/RFdiffusion:${PYTHONPATH}"
