@@ -7,13 +7,13 @@ import subprocess
 import torch
 import requests  # <- AÑADIDO para descargar PDBs
 import time
+import shutil
 
 start_time_total = time.time()
 
 sys.path.append('/workspace/RFdiffusion')
 
-# FUNCIÓN PARA DESCARGAR PDBs
-# FUNCIÓN PARA QUITAR CADENA ESPECÍFICA
+# FUNCIÓN PARA DESCARGAR PDBs y QUITAR CADENA ESPECÍFICA
 def quitar_cadena(pdb_file, cadena_a_quitar):
     """Quita una cadena específica del PDB"""
     # Leer todo el contenido
@@ -85,26 +85,26 @@ else:
     print("ADVERTENCIA: No se detectó GPU - Usando CPU (muy lento)")
 print("=" * 50)
 
+##########################################
+##########################################
 ################### parametros
 name = "test_6B3J"
 contigs = "12-15/0 R311-337"  # ← Cadenas explícitas
 pdb = "6B3J" 
-iterations = 200
+iterations = 30
 hotspot = "R312,R313,R314,R315" 
 num_designs = 1
 visual = "image"
 symmetry = ""
 symmetry_order = ""
 chains = ""
-chain_to_remove = "P"  
-
+chain_to_remove = "P"  #None si 
 ##########################################
-# DESCARGAR PDB SI SE ESPECIFICA
-pdb_file_actual = download_pdb(pdb, 
-                               remove_chain=chain_to_remove)
+##########################################
 
 if pdb and len(pdb) == 4:  # Si es un ID de PDB (4 caracteres)
-    pdb_file_actual = download_pdb(pdb)
+    pdb_file_actual = download_pdb(pdb, 
+                               remove_chain=chain_to_remove)
     if pdb_file_actual:
         print(f"🎯 Usando PDB: {pdb_file_actual}")
     else:
@@ -198,6 +198,25 @@ if result.returncode == 0:
             print("No se encontró el archivo PDB generado")
 else:
     print(f"Error: Código {result.returncode}")
+
+
+###########################
+# COPIAR ARCHIVOS PDB A TU PC (SOLO ESTO AGREGADO)
+import shutil
+os.makedirs("/workspace/outputs/", exist_ok=True)
+
+# Copiar PDB original (si existe)
+if os.path.exists(f"/workspace/RFdiffusion/{pdb}_ORIGINAL.pdb"):
+    shutil.copy2(f"/workspace/RFdiffusion/{pdb}_ORIGINAL.pdb", f"/workspace/outputs/{pdb}_ORIGINAL.pdb")
+    print(f"- {pdb}_ORIGINAL.pdb")
+
+# Copiar PDB sin cadena P (si existe)  
+if os.path.exists(f"/workspace/RFdiffusion/{pdb}.pdb"):
+    shutil.copy2(f"/workspace/RFdiffusion/{pdb}.pdb", f"/workspace/outputs/{pdb}_SIN_P.pdb")
+    print(f"- {pdb}_SIN_P.pdb")
+
+print("Archivos PDB en tu carpeta 'outputs'")
+###########################
 
 end_time_total = time.time()
 print("=" * 60)
