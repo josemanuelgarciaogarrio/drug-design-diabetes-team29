@@ -1,0 +1,7 @@
+# Python
+__pycache__/
+*.pyc
+
+# VSCode
+.vscode/
+alphafold_predictor/data/traning_alphafold_predictor/

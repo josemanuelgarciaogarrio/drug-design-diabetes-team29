@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModel
 class CustomProteinDataset(Dataset):
     def __init__(self, path):
         df = pd.read_csv(path)
-        self.sequences = df['sequence'].tolist()
+        self.sequences = [row.replace("/","") for row in df['seq'].tolist()] #Se concatena ambas cadenas como una sola
         plddt_scores = df['plddt'].astype(float)
         self.plddts = torch.tensor(plddt_scores.values, dtype=torch.float32).view(-1,1)
 
