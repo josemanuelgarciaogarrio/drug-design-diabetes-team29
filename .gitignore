@@ -4,4 +4,4 @@ __pycache__/
 
 # VSCode
 .vscode/
-alphafold_predictor/data/traning_alphafold_predictor/
+/data/traning_alphafold_predictor/
