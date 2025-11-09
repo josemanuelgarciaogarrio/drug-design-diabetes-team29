@@ -87,10 +87,16 @@ RUN cd /workspace/PyRosetta4.Release.python310.linux.release-387/setup && python
 ENV DGLBACKEND=pytorch
 ENV PYTHONPATH="/workspace/RFdiffusion:${PYTHONPATH}"
 
+# INSTALAR JAX CON GPU
+RUN pip uninstall -y jax jaxlib
+RUN pip install --upgrade "jax[cuda12]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+RUN pip install --upgrade --force-reinstall "jax[cuda12]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
 # Crear directorio de outputs
 RUN mkdir -p outputs
 
 # Mensaje de confirmación
 CMD echo "RFdiffusion environment COMPLETELY READY!" && \
-    echo "All dependencies installed including psutil" && \
-    echo "To run: docker run -it --gpus all -v /host/outputs:/workspace/outputs rfdiffusion bash"
+    echo "JAX installed with GPU support" && \
+    echo "To run: docker run -it --gpus all -v /host/outputs:/workspace/outputs rfdiffusion bash" && \
+    python3 -c "import jax; print(f'JAX devices: {jax.devices()}')"
