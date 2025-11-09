@@ -2,38 +2,35 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class Backbone(nn.Module):
-    def __init__(self, input_dim, output_dim):
-        super().__init__()
-        self.layer1 = nn.Linear(input_dim, input_dim // 2)
-        self.layer2 = nn.Linear(input_dim // 2, output_dim)
-    def forward(self, x):
-        x = F.relu(self.layer1(x))
-        x = self.layer2(x)
-        return x
 class SiameseNetwork(nn.Module):
-    def __init__(self, input_dim_A, input_dim_B, backbone_output_dim, head_hidden_dim):
+    def __init__(self, embedding_dim, hidden_dim, encoding_dim):
         super().__init__()
-        self.backbone_A = nn.Sequential(
-            nn.Linear(input_dim_A, input_dim_A // 2),
+        
+        self.siamese_tower = nn.Sequential(
+            nn.Linear(embedding_dim, hidden_dim),
             nn.ReLU(),
-            nn.Linear(input_dim_A // 2, backbone_output_dim)
-        )
-        self.backbone_B = nn.Sequential(
-            nn.Linear(input_dim_B, input_dim_B // 2),
+            nn.Dropout(0.3), # Añadimos Dropout para regularización
+            nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
-            nn.Linear(input_dim_B // 2, backbone_output_dim)
+            nn.Dropout(0.3),
+            nn.Linear(hidden_dim, encoding_dim)
         )
-        self.head = nn.Sequential(
-            # Input size es doble porque concatenamos ambas secuencias
-            nn.Linear(backbone_output_dim * 2, head_hidden_dim),
+        self.regression_head = nn.Sequential(
+            nn.Linear(encoding_dim * 3, hidden_dim),
             nn.ReLU(),
-            nn.Linear(head_hidden_dim, 1) # Única salida para regresión
+            nn.Dropout(0.3),
+            nn.Linear(hidden_dim, 32),
+            nn.ReLU(),
+            nn.Linear(32, 1) # Salida única para regresión
         )
+
     def forward(self, embeddingA, embeddingB):
-        processed_A = self.backbone_A(embeddingA)
-        processed_B = self.backbone_B(embeddingB)
-        #Concatenamos a lo largo de la última dimensión
-        fused_vector = torch.cat((processed_A, processed_B), dim=1)
-        output = self.head(fused_vector)
-        return output
+        processed_A = self.siamese_tower(embeddingA)
+        processed_B = self.siamese_tower(embeddingB)
+
+        difference = torch.abs(processed_A - processed_B)
+        combined_vector = torch.cat((processed_A, processed_B, difference), dim=1)
+
+        prediction = self.regression_head(combined_vector)
+
+        return prediction
