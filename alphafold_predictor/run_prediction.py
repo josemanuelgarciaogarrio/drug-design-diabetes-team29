@@ -15,7 +15,7 @@ def main():
     setup_logging()
     logger = logging.getLogger(__name__)
     parser = argparse.ArgumentParser(
-        description='Predictor de proteínas usando ESM + MLP',
+        description='Predictor de proteínas(pLDDT e iPTM) usando ESM, SNN, GB y XGBoost',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Ejemplos de uso:
@@ -25,6 +25,12 @@ Ejemplos de uso:
     
   Desde Docker:
     docker run batch-predictor:latest --mode single --sequence "MKTLILAFLFASA"
+
+  Predicción batch:
+    python run_prediction.py --mode batch --input "mpnn_results.csv"
+    
+  Desde Docker:
+    docker run batch-predictor:latest --mode batch --input "mpnn_results.csv"
         """
     )
 
@@ -32,15 +38,22 @@ Ejemplos de uso:
         '--mode',
         type=str,
         required=True,
-        choices=['single'],
-        help='Modo de predicción: single (una secuencia)'
+        choices=['single','batch'],
+        help='Modo de predicción: single (una secuencia) o batch (archivo)'
     )
 
     parser.add_argument(
         '--sequence',
         type=str,
-        required=True,
-        help='Secuencia de aminoácidos para predecir'
+        required=False,
+        help='Secuencia de aminoácidos para predecir (modo single)'
+    )
+
+    parser.add_argument(
+        '--input',
+        type=str,
+        required=False,
+        help='Archivo de entrada con secuencias (modo batch)'
     )
 
     args = parser.parse_args()
@@ -61,17 +74,37 @@ Ejemplos de uso:
                 logger.info("PREDICCIÓN EXITOSA")
                 logger.info("-" * 60)
                 print(f"\nSecuencia: {result['sequence']}")
-                print(f"Predicción: {result['prediction']:.6f}")
+                print(f"Predicción pLDDT: {result['prediction_pLDDT']:.6f}")
+                print(f"Predicción iPTM: {result['prediction_iPTM']:.6f}")
                 print(f"Timestamp: {result['timestamp']}\n")
                 # Exit code 0 (éxito)
                 sys.exit(0)
             else:
                 logger.error("PREDICCIÓN FALLIDA")
                 logger.error("-" * 60)
-                print(f"\nError: {result['error']}\n")
+                print(f"\nError: {result}")
                 # Exit code 1 (error)
                 sys.exit(1)
-
+        elif args.mode == 'batch':
+            logger.info(f"Modo: Predicción Batch")
+            logger.info(f"Archivo con inputs: {args.input}")
+            logger.info("-" * 60)
+            result = predictor.predict_batch(args.input)
+            logger.info("=" * 60)
+            if result['status'] == 'success':
+                logger.info("PREDICCIÓN EXITOSA")
+                logger.info("-" * 60)
+                print(f"\nSecuencia: {result['sequence']}")
+                print(f"Predicción pLDDT: {result['prediction_pLDDT']}")
+                print(f"Predicción iPTM: {result['prediction_iPTM']}")
+                print(f"Timestamp: {result['timestamp']}\n")
+                sys.exit(0)
+            else:
+                logger.error("PREDICCIÓN FALLIDA")
+                logger.error("-" * 60)
+                print(f"\nError: {result}")
+                sys.exit(1)
+            
     except KeyboardInterrupt:
         logger.warning("\nProceso interrumpido por el usuario")
         sys.exit(130)
