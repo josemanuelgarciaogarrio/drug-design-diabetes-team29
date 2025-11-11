@@ -2,7 +2,7 @@ import xgboost as xgb
 import logging
 import torch
 from src.siamese_network import SiameseNetwork
-from src.config import MODEL_PATH_iptm_ml, MODEL_PATH_iptm_dl
+from src.config import MODEL_PATH_iptm_ml, MODEL_PATH_iptm_dl , DEVICE
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ class iptm_predictor:
         self.model_ml.load_model(MODEL_PATH_iptm_ml)
 
         self.model_dl = SiameseNetwork(embedding_dim=1280, hidden_dim=256, encoding_dim=64)
-        self.model_dl.load_state_dict(torch.load(MODEL_PATH_iptm_dl))
+        self.model_dl.load_state_dict(torch.load(MODEL_PATH_iptm_dl, map_location=torch.device(DEVICE)))
         self.model_dl.eval()
         logger.info("Modelos cargados para predicción de iPTM")
 
