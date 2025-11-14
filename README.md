@@ -33,7 +33,5 @@ drug-design-diabetes-team29/
 ├── notebooks/
 │   └── Avance1_Equipo29.ipynb
 ├── README.md           # Project documentation
-├── requirements.txt    # Dependencies for notebooks
 ├── src/                # Scripts and utilities
-├── data/               # Datasets
-└── images/             # Figures and visualizations
+
